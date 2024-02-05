@@ -13,6 +13,7 @@ by Pacman agents (in searchAgents.py).
 
 import util
 from util import heappush, heappop
+from game import Directions
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -67,40 +68,92 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s,s,w,s,w,w,s,w]
 
+def constructParentMap(problem):
+    queue = [problem.getStartState()]
+    key = (problem.getStartState())[0]
+    # What you want to construct
+    parent_map = dict() # or `{}`
+
+    while len(queue) > 0:
+        node = queue[0]
+        queue = queue[1:]
+        for successor in problem.getSuccessors(node):
+            # Where you construct it
+            if node[0] not in parent_map:
+              parent_map[node[0]] = []
+            parent_map[node[0]].append(successor)
+    
+    parent_map.pop(key)
+    return parent_map
+
+def createMap(problem, map):
+  start = problem.getStartState()
+  
+
 def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first.
-    Your search algorithm needs to return a list of actions that reaches
-    the goal. Make sure that you implement the graph search version of DFS,
-    which avoids expanding any already visited states. 
-    Otherwise your implementation may run infinitely!
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    """
-    """
-    YOUR CODE HERE
-    """
+    from util import Stack
 
-    print("Start:", problem.getStartState())
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+    closed = []
+    fringe = Stack()
+    path = []
 
-    from game import Directions
-    s = Directions.SOUTH
-    w = Directions.WEST
+    #get start node to fringe
+    node = problem.getStartState()
+    Stack.push(fringe,(node,[]))
 
-    return  [s,s]
+
+    while not fringe.isEmpty():
+      #Expand next state in the fringe
+      node,path = Stack.pop(fringe)
+
+      #Check if we have found the goal state
+      if problem.isGoalState(node): 
+        return path
+
+      if node not in closed:
+        closed.append(node)
+
+        childNodes = problem.getSuccessors(node)
+        for child in childNodes:
+          newPath = path + [child[1]]
+          Stack.push(fringe,(child[0], newPath))
+          
+    #If not goal found return empty list
+    return []
 
     util.raiseNotDefined()
-    
 
 def breadthFirstSearch(problem):
-    """
-    YOUR CODE HERE
-    """
-    util.raiseNotDefined()
+  from util import Queue
+
+  closed = []
+  fringe = Queue()
+  path = []
+
+  #get start node to fringe
+  node = problem.getStartState()
+  Queue.push(fringe,(node,[]))
+
+
+  while not fringe.isEmpty():
+    #Expand next state in the fringe
+    node,path = Queue.pop(fringe)
+
+    #Check if we have found the goal state
+    if problem.isGoalState(node): 
+      return path
+
+    if node not in closed:
+      closed.append(node)
+
+      childNodes = problem.getSuccessors(node)
+      for child in childNodes:
+        newPath = path + [child[1]]
+        Queue.push(fringe,(child[0], newPath))
+        
+  #If not goal found return empty list
+  return []
+  util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """
