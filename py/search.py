@@ -121,8 +121,6 @@ def depthFirstSearch(problem):
     #If not goal found return empty list
     return []
 
-    util.raiseNotDefined()
-
 def breadthFirstSearch(problem):
   from util import Queue
 
@@ -153,13 +151,40 @@ def breadthFirstSearch(problem):
         
   #If not goal found return empty list
   return []
-  util.raiseNotDefined()
 
 def uniformCostSearch(problem):
-    """
-    YOUR CODE HERE
-    """
-    util.raiseNotDefined()
+  from util import heappush, heappop
+
+  closed = []
+  fringe = []
+  path = []
+
+  #get start node to fringe
+  node = problem.getStartState()
+  heappush(fringe,(0,(node,[])))
+
+
+  while len(fringe) > 0:
+    #Expand next state in the fringe
+    cost,nodeAndPath = heappop(fringe)
+    node = nodeAndPath[0]
+    path = nodeAndPath[1]
+
+    #Check if we have found the goal state
+    if problem.isGoalState(node): 
+      return path
+
+    if node not in closed:
+      closed.append(node)
+
+      childNodes = problem.getSuccessors(node)
+      for child in childNodes:
+        newPath = path + [child[1]] 
+        newCost = cost + child[2]
+        heappush(fringe,(newCost,(child[0],newPath)))
+        
+  #If not goal found return empty list
+  return []
 
 def nullHeuristic(state, problem=None):
     """
@@ -169,10 +194,46 @@ def nullHeuristic(state, problem=None):
     return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-    """
-    YOUR CODE HERE
-    """
-    util.raiseNotDefined()
+  from util import heappush, heappop
+
+  closed = []
+  fringe = []
+  path = []
+
+  #get start node to fringe
+  node = problem.getStartState()
+  cost = heuristic(node,problem) + 0
+  ucs = 0
+  heappush(fringe,(cost,[node,[],ucs]))
+
+
+  while len(fringe) > 0:
+    #Expand next state in the fringe
+    cost,nodeAndPath = heappop(fringe)
+    node = nodeAndPath[0]
+    path = nodeAndPath[1]
+    ucs = nodeAndPath[2]
+
+    #Check if we have found the goal state
+    if problem.isGoalState(node):
+      return path
+
+    if node not in closed:
+      closed.append(node)
+
+      #Get all children
+      childNodes = problem.getSuccessors(node)
+      for child in childNodes:
+        #New path is current path + move to get to child
+        newPath = path + [child[1]]
+        #New cost = old cost + cost of new node + heuristic
+        newUcs = ucs + child[2]
+        newCost = newUcs + heuristic(child[0], problem)
+        #Add to fringe
+        heappush(fringe,(newCost,(child[0],newPath,newUcs)))
+        
+  #If not goal found return empty list
+  return []
 
 
 # Abbreviations
